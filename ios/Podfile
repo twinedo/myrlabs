@@ -1,11 +1,30 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '12.4'
+platform :ios, '13.0'
 install! 'cocoapods', :deterministic_uuids => false
 
+$RNFirebaseAsStaticFramework = true
+
 target 'myrlabs' do
+  $static_framework = []
+  use_frameworks! :linkage => :static
   config = use_native_modules!
+
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  rn_maps_path = '../node_modules/react-native-maps'
+
+  $static_framework += [
+    'react-native-maps',
+    'react-native-google-maps',
+    'Google-Maps-iOS-Utils',
+    'GoogleMaps',
+    'RNPermissions',
+    'Permission-LocationWhenInUse',
+    'Permission-Notifications',
+  ]
+
+  pod 'react-native-google-maps', :path => rn_maps_path
 
   # Flags change depending on the env values.
   flags = get_default_flags()

@@ -25,6 +25,9 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import {enableLatestRenderer} from 'react-native-maps';
+
+enableLatestRenderer();
 
 const Section = ({children, title}): Node => {
   const isDarkMode = useColorScheme() === 'dark';

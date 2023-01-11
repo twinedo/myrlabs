@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "107108696500",
+    "project_id": "myrlabs-46af1",
+    "storage_bucket": "myrlabs-46af1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107108696500:android:d4a4c527501837f22ef2e1",
+        "android_client_info": {
+          "package_name": "com.myrlabs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107108696500-13pgldnuqcconrcttcmvfncn6046u7hh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myrlabs",
+            "certificate_hash": "756c8f64a6a04cf207bafdfac0bc170d3e2ad8e4"
+          }
+        },
+        {
+          "client_id": "107108696500-3chna24p76fv8as7ff5k56ijab809muo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyiKxcK71tAS_IapCOINmLjmDKza0wKRg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107108696500-3chna24p76fv8as7ff5k56ijab809muo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
