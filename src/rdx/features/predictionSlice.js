@@ -1,4 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
+import polyline from '@mapbox/polyline';
 
 const initialState = {
   place: '',
@@ -23,16 +24,19 @@ export const predictionSlice = createSlice({
     setCoords: (state, action) => {
       state.coords === action.payload;
     },
-    setLegss: (state, action) => {
+    setLegs: (state, action) => {
       state.legs === action.payload;
     },
     setPlace: (state, action) => {
       state.place === action.payload;
     },
+    setSteps: (state, action) => {
+      state.legs.steps === action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {setCoords, setLegs, setPlace} = predictionSlice.actions;
+export const {setCoords, setLegs, setPlace, setSteps} = predictionSlice.actions;
 
 export default predictionSlice.reducer;

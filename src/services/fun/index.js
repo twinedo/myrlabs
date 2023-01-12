@@ -1,4 +1,5 @@
 import {getCompassDirection, getDistance, getRhumbLineBearing} from 'geolib';
+import {DIRECTION_API, MAPS_KEY} from '@env';
 
 export const _direction = degree => {
   if (degree >= 22.5 && degree < 67.5) {
@@ -62,4 +63,26 @@ export const _onGetDistanceCurrentToNextStep = (
     },
   );
   return result;
+};
+
+export const getDirect = async (origin, destination) => {
+  try {
+    let response = await fetch(
+      `${DIRECTION_API}?origin=${origin}&destination=${destination}&mode=walking&key=${MAPS_KEY}`,
+    );
+    let respJson = await response.json();
+    const legs = respJson.routes[0].legs[0];
+    let points = polyline.decode(respJson.routes[0].overview_polyline.points);
+    let newCoords = points.map(point => {
+      return {
+        latitude: point[0],
+        longitude: point[1],
+      };
+    });
+
+    return Promise.resolve({legs, newCoords});
+  } catch (error) {
+    alert('Error: ' + error);
+    return Promise.reject(error);
+  }
 };

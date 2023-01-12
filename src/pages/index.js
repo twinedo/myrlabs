@@ -2,7 +2,7 @@ import SplashScreen from './SplashScreen';
 import PermissionsPage from './PermissionsPage';
 import AskPlace from './AskPlace';
 import Destination from './Destination';
-// import ConfirmNav from './ConfirmNav';
+import ConfirmNav from './ConfirmNav';
 // import ArrivalPlace from './ArrivalPlace';
 // import FinalNavigation from './FinalNavigation';
 import ListenPlace from './ListenPlace';
@@ -12,7 +12,7 @@ export {
   PermissionsPage,
   AskPlace,
   Destination,
-  // ConfirmNav,
+  ConfirmNav,
   // ArrivalPlace,
   // FinalNavigation,
   ListenPlace,

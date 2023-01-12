@@ -18,9 +18,9 @@ import polyline from '@mapbox/polyline';
 import Geolocation from '@react-native-community/geolocation';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import Tts from 'react-native-tts';
-// import usePredictionsStore from '../../zustand/legs';
 import lodash from 'lodash';
 import {useDispatch, useSelector} from 'react-redux';
+import {setLegs, setPlace} from '../../rdx/features/predictionSlice';
 
 const {width} = Dimensions.get('window');
 
@@ -198,6 +198,8 @@ const Destination = () => {
 
   const _onLongPressItem = item => {
     console.log('item', item);
+    dispatch(setLegs(item.nav));
+    dispatch(setPlace(item.place));
     // setLegs(item.nav);
     // setPlace(item.place);
 
