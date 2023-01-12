@@ -1,5 +1,6 @@
 import {getCompassDirection, getDistance, getRhumbLineBearing} from 'geolib';
 import {DIRECTION_API, MAPS_KEY} from '@env';
+import polyline from '@mapbox/polyline';
 
 export const _direction = degree => {
   if (degree >= 22.5 && degree < 67.5) {

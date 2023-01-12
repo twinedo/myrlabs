@@ -21,7 +21,6 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import globalStyles from '../../styles/globalStyles';
 import {useDispatch, useSelector} from 'react-redux';
 import {setCurrentPos} from '../../rdx/features/currentPosSlice';
-import polyline from '@mapbox/polyline';
 import {getDirect} from '../../services/fun';
 import {setCoords, setLegs} from '../../rdx/features/predictionSlice';
 const {BridgeModule} = NativeModules;
