@@ -4,10 +4,17 @@ import {useNavigation} from '@react-navigation/native';
 import globalStyles from '../../styles/globalStyles';
 import {checkMultiple, PERMISSIONS} from 'react-native-permissions';
 import RNFS from 'react-native-fs';
+import {useDispatch, useSelector} from 'react-redux';
+import {setIosDir} from '../../rdx/features/iosdirSlice';
+
 // import useIOSDirStore from '../../zustand/iosdir';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
+  const iosdir = useSelector(state => state.iosdir.iosdir);
+  console.log('iosdir', iosdir);
+  const dispatch = useDispatch();
+
   // const setIosDir = useIOSDirStore(state => state.setIosDir);
 
   const [page, setPage] = useState('');
@@ -44,14 +51,14 @@ const SplashScreen = () => {
           statuses[PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE] === 'denied'
         ) {
           setPage('PermissionsPage');
-          // setTimeout(() => {
-          //   navigation.navigate('PermissionsPage');
-          // }, 1000);
+          setTimeout(() => {
+            navigation.navigate('PermissionsPage');
+          }, 1000);
         } else {
           setPage('AskPlace');
-          // setTimeout(() => {
-          //   navigation.navigate('AskPlace');
-          // }, 1000);
+          setTimeout(() => {
+            navigation.navigate('AskPlace');
+          }, 1000);
         }
       });
     } else {
@@ -65,14 +72,14 @@ const SplashScreen = () => {
           statuses[PERMISSIONS.IOS.LOCATION_ALWAYS] === 'denied' ||
           statuses[PERMISSIONS.IOS.MICROPHONE] === 'denied'
         ) {
-          // setTimeout(() => {
-          //   navigation.navigate('PermissionsPage');
-          // }, 1000);
+          setTimeout(() => {
+            navigation.navigate('PermissionsPage');
+          }, 1000);
         } else {
           setPage('AskPlace');
-          // setTimeout(() => {
-          //   navigation.navigate('AskPlace');
-          // }, 1000);
+          setTimeout(() => {
+            navigation.navigate('AskPlace');
+          }, 1000);
         }
       });
     }
@@ -129,8 +136,8 @@ const SplashScreen = () => {
       RNFS.readDir(RNFS.MainBundlePath)
         .then(resBundle => {
           console.log('resBundle', resBundle);
-          // const findIdx = resBundle.findIndex(o => o.name === 'assets');
-
+          const findIdx = resBundle.findIndex(o => o.name === 'assets');
+          dispatch(setIosDir(resBundle[findIdx].path));
           // setIosDir(resBundle[findIdx].path);
         })
         .catch(errBundle => {
@@ -142,8 +149,7 @@ const SplashScreen = () => {
   return (
     <Pressable
       style={globalStyles.container}
-      // onPress={() => navigation.navigate('AskPlace')}
-    >
+      onPress={() => navigation.navigate('AskPlace')}>
       <Text style={styles.title}>Myrlabs</Text>
     </Pressable>
   );

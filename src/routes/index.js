@@ -2,13 +2,13 @@ import React from 'react';
 // import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {
   SplashScreen,
-  // PermissionsPage,
+  PermissionsPage,
+  AskPlace,
   // Destination,
   // ConfirmNav,
   // ArrivalPlace,
   // FinalNavigation,
 } from '../pages';
-// import AskPlace from '../pages/AskPlace';
 // import ListenPlace from '../pages/ListenPlace';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -24,12 +24,12 @@ const Routes = () => {
         component={SplashScreen}
         options={{headerShown: false}}
       />
-      {/* <Screen
+      <Screen
         name="PermissionsPage"
         component={PermissionsPage}
         options={{headerShown: false}}
       />
-      <Screen
+      {/* <Screen
         name="Destination"
         component={Destination}
         options={{headerShown: false}}
@@ -53,15 +53,15 @@ const Routes = () => {
         options={{headerShown: false}}
       />
       <Screen
-        name="AskPlace"
-        component={AskPlace}
-        options={{headerShown: false}}
-      />
-      <Screen
         name="ListenPlace"
         component={ListenPlace}
         options={{headerShown: false}}
       /> */}
+      <Screen
+        name="AskPlace"
+        component={AskPlace}
+        options={{headerShown: false}}
+      />
     </Navigator>
   );
 };
