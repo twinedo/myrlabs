@@ -1,6 +1,6 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import Routes from 'routes';
+import Routes from './src/routes';
 import {enableLatestRenderer} from 'react-native-maps';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import crashlytics from '@react-native-firebase/crashlytics';

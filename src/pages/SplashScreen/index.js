@@ -1,7 +1,7 @@
 import {Platform, Pressable, StyleSheet, Text} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import globalStyles from 'styles/globalStyles';
+import globalStyles from '../../styles/globalStyles';
 import {checkMultiple, PERMISSIONS} from 'react-native-permissions';
 import RNFS from 'react-native-fs';
 // import useIOSDirStore from '../../zustand/iosdir';

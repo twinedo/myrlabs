@@ -1,0 +1,37 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/audio/heading_backward.wav",
+      "sha1": "8906a1b63fda2c833f70422a415ccffd5ae16c16"
+    },
+    {
+      "path": "src/assets/audio/heading_backward_left.wav",
+      "sha1": "09df195e4934a56ff9a54a4a612049eb1baa9964"
+    },
+    {
+      "path": "src/assets/audio/heading_backward_right.wav",
+      "sha1": "e1980700cd519b7075691d350e0309aa168d8eef"
+    },
+    {
+      "path": "src/assets/audio/heading_forward.wav",
+      "sha1": "0b610a0ce73325f1f092936ff4a5d4c89fa1bdc5"
+    },
+    {
+      "path": "src/assets/audio/heading_forward_left.wav",
+      "sha1": "8d2f5f31a442f586e5fb183cd0089e64e44c1721"
+    },
+    {
+      "path": "src/assets/audio/heading_forward_right.wav",
+      "sha1": "e370ac92aa4f2c9f2c151f01730e53f5e0de4189"
+    },
+    {
+      "path": "src/assets/audio/heading_left.wav",
+      "sha1": "083f5a759a4aa53a28612f53f2fa4ae3bd72de2c"
+    },
+    {
+      "path": "src/assets/audio/heading_right.wav",
+      "sha1": "e2acf05010ac35eec4d067ea4e7cc788706d25e9"
+    }
+  ]
+}
