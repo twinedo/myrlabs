@@ -20,7 +20,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import Tts from 'react-native-tts';
 import lodash from 'lodash';
 import {useDispatch, useSelector} from 'react-redux';
-import {setLegs, setPlace} from '../../rdx/features/predictionSlice';
+import {setCoords, setLegs, setPlace} from '../../rdx/features/predictionSlice';
 
 const {width} = Dimensions.get('window');
 
@@ -76,10 +76,11 @@ const Destination = () => {
       );
       console.log('response from', response);
       // setPredictFrom(response.data.predictions);
-      if (Platform.OS === 'android' && response.data.predictions.length === 0) {
+      if (response.data.predictions.length === 0) {
         _onErrorResult(text);
         setLoading(false);
       } else {
+        console.log('cukkkkkkkkkkkk');
         let newArr = [];
         await response.data.predictions.map(async (o, i) => {
           const newDesc = o.description.replace(/\s+/g, '%20');
@@ -92,6 +93,7 @@ const Destination = () => {
                 '&region=sg',
               // '&region=id',
             );
+            console.log('resssplaceeee', resPlace);
 
             const location = resPlace.data.results[0].geometry.location;
             Geolocation.getCurrentPosition(
@@ -102,6 +104,8 @@ const Destination = () => {
                     `${position.coords.latitude},${position.coords.longitude}`,
                     destination,
                   );
+                  console.log('directiawdjanwdkjnawd', direction);
+                  // dispatch(setCoords(direction.coords));
 
                   let item = {
                     place: o.description,

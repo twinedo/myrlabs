@@ -10,7 +10,17 @@ const initialState = {
     end_location: {lat: 0, lng: 0},
     start_address: '',
     start_location: {lat: 0, lng: 0},
-    steps: [{start_location: {lat: 0, lng: 0}}],
+    steps: [
+      {
+        distance: {text: '', value: 0},
+        duration: {text: '', value: 0},
+        end_location: {lat: 0, lng: 0},
+        html_instructions: '',
+        polyline: {points: ''},
+        start_location: {lat: 0, lng: 0},
+        travel_mode: 'WALKING',
+      },
+    ],
     traffic_speed_entry: [],
     via_waypoint: [],
   },
@@ -22,13 +32,13 @@ export const predictionSlice = createSlice({
   initialState,
   reducers: {
     setCoords: (state, action) => {
-      state.coords === action.payload;
+      return {...state, coords: action.payload};
     },
     setLegs: (state, action) => {
-      state.legs === action.payload;
+      return {...state, legs: action.payload};
     },
     setPlace: (state, action) => {
-      state.place === action.payload;
+      return {...state, place: action.payload};
     },
     setSteps: (state, action) => {
       state.legs.steps === action.payload;

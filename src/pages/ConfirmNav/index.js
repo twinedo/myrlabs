@@ -6,7 +6,7 @@ import {
   NativeModules,
   Platform,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Spacer} from '../../components';
 import Tts from 'react-native-tts';
@@ -26,38 +26,23 @@ import {setCoords, setLegs} from '../../rdx/features/predictionSlice';
 const {BridgeModule} = NativeModules;
 
 const ConfirmNav = () => {
+  const dispatch = useDispatch();
   const route = useRoute();
   const navigation = useNavigation();
   const {data} = route.params;
   const coords = useSelector(state => state.prediction.coords);
+  console.log('coords', coords);
   const iosdir = useSelector(state => state.iosdir.iosdir);
-  const dispatch = useDispatch();
 
   const getDirection = async (a, b) => {
-    const {legs, newCoords} = await getDirect(a, b);
-    dispatch(setLegs(legs));
-    dispatch(setCoords(newCoords));
+    getDirect(a, b).then(res => {
+      console.log('getDirect', res);
+      dispatch(setLegs(res.legs));
+      dispatch(setCoords(res.newCoords));
+    });
   };
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      RNFS.exists('/storage/emulated/0/Android/data/com.myrlabs/audio').then(
-        () => {
-          BridgeModule.setFilePath(
-            '/storage/emulated/0/Android/data/com.myrlabs/audio' +
-              '/heading_forward.wav',
-          );
-        },
-      );
-    }
-
-    if (Platform.OS === 'ios') {
-      RNFS.readDir(iosdir).then(res => {
-        const findIdx = res.findIndex(o => o.name === 'heading_forward.wav');
-        BridgeModule.setFilePath(res[findIdx].path);
-      });
-    }
-
     Geolocation.getCurrentPosition(
       async position => {
         const destination = `${data.nav.end_location.lat},${data.nav.end_location.lng}`;
@@ -81,6 +66,22 @@ const ConfirmNav = () => {
       },
       {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
     );
+
+    if (Platform.OS === 'android') {
+      RNFS.exists('/storage/emulated/0/Android/data/com.myrlabs/audio').then(
+        () => {
+          BridgeModule.setFilePath(
+            '/storage/emulated/0/Android/data/com.myrlabs/audio' +
+              '/heading_forward.wav',
+          );
+        },
+      );
+    } else if (Platform.OS === 'ios') {
+      RNFS.readDir(iosdir).then(res => {
+        const findIdx = res.findIndex(o => o.name === 'heading_forward.wav');
+        BridgeModule.setFilePath(res[findIdx].path);
+      });
+    }
   }, []);
 
   useEffect(() => {

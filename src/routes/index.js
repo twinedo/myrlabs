@@ -7,8 +7,8 @@ import {
   Destination,
   ConfirmNav,
   ListenPlace,
-  // ArrivalPlace,
-  // FinalNavigation,
+  ArrivalPlace,
+  FinalNavigation,
 } from '../pages';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -39,7 +39,7 @@ const Routes = () => {
         component={ConfirmNav}
         options={{headerShown: false}}
       />
-      {/*
+
       <Screen
         name="FinalNavigation"
         component={FinalNavigation}
@@ -53,7 +53,7 @@ const Routes = () => {
         component={ArrivalPlace}
         options={{headerShown: false}}
       />
-    */}
+
       <Screen
         name="ListenPlace"
         component={ListenPlace}

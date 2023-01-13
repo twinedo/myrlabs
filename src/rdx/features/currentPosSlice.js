@@ -9,11 +9,11 @@ export const currentPosSlice = createSlice({
   name: 'currentPos',
   initialState,
   reducers: {
-    setCurrentPos: (state, action) => {
-      state === action.payload;
+    setCurrentPos: (_, action) => {
+      return action.payload;
     },
-    resetCurrentPos: state => {
-      state === initialState;
+    resetCurrentPos: () => {
+      return initialState;
     },
   },
 });

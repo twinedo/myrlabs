@@ -18,12 +18,10 @@ import {
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
 import {useNavigation, useRoute} from '@react-navigation/native';
-// import usePredictionsStore from '../../zustand/legs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {findNearest, getDistance, isPointWithinRadius} from 'geolib';
-// import useCurrentPosStore from '../../zustand/currentPos';
 import Geolocation from '@react-native-community/geolocation';
 import Permissions from '../../services/utils/Permissions';
 import {
@@ -31,17 +29,14 @@ import {
   _onGetDistanceCurrentToNextStep,
   getDirect,
 } from '../../services/fun';
-// import useRhumbStore from '../../zustand/rhumb';
 import RenderHTML from 'react-native-render-html';
 import Tts from 'react-native-tts';
 import RNFS from 'react-native-fs';
 import {Spacer} from '../../components';
 import CompassHeading from 'react-native-compass-heading';
-// import useIOSDirStore from '../../zustand/iosdir';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import globalStyles from '../../styles/globalStyles';
 import crashlytics from '@react-native-firebase/crashlytics';
-import ErrorBoundary from 'react-native-error-boundary';
 import {useDispatch, useSelector} from 'react-redux';
 import {setBearing, setCompassDir} from '../../rdx/features/rhumbSlice';
 import {setCurrentPos} from '../../rdx/features/currentPosSlice';
@@ -56,6 +51,7 @@ const LONGITUDE_DELTA = 0.05;
 const FinalNavigation = () => {
   const route = useRoute();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   let mapsRef = useRef(null);
   let animMarkerDirRef = useRef(null);
   let animMarkerRef = useRef(null);
@@ -65,7 +61,6 @@ const FinalNavigation = () => {
   const currentPos = useSelector(state => state.currentPos.currentPos);
   const iosdir = useSelector(state => state.iosdir.iosdir);
   const rhumb = useSelector(state => state.rhumb.rhumb);
-  const dispatch = useDispatch();
 
   const [stateDegree, setStateDegree] = useState(0);
 
@@ -87,11 +82,6 @@ const FinalNavigation = () => {
   );
 
   let degreeRef = useRef(0);
-
-  // useEffect(() => {
-  //   usePredictionsStore.subscribe(state => (coordsRef.current = state.coords));
-  //   usePredictionsStore.subscribe(state => (legsRef.current = state.legs));
-  // }, []);
 
   useEffect(() => {
     const destination = `${route.params.destination.latitude},${route.params.destination.longitude}`;
@@ -182,21 +172,20 @@ const FinalNavigation = () => {
     setUpdateDirectBtn(true);
     Geolocation.getCurrentPosition(
       async position => {
-        const newCoords = usePredictionsStore.getState().coords;
         dispatch(
           setBearing(
             position.coords.latitude,
             position.coords.longitude,
-            newCoords[0].latitude,
-            newCoords[0].longitude,
+            coords[0].latitude,
+            coords[0].longitude,
           ),
         );
         dispatch(
           setCompassDir(
             position.coords.latitude,
             position.coords.longitude,
-            newCoords[0].latitude,
-            newCoords[0].longitude,
+            coords[0].latitude,
+            coords[0].longitude,
           ),
         );
         mapsRef?.current?.animateCamera(
@@ -250,8 +239,6 @@ const FinalNavigation = () => {
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
       async position => {
-        const newCoords = usePredictionsStore.getState().coords;
-        const newLegs = usePredictionsStore.getState().legs;
         dispatch(
           setCurrentPos({
             latitude: position.coords.latitude,
@@ -263,16 +250,16 @@ const FinalNavigation = () => {
           setBearing(
             position.coords.latitude,
             position.coords.longitude,
-            newCoords[1].latitude,
-            newCoords[1].longitude,
+            coords[1].latitude,
+            coords[1].longitude,
           ),
         );
         dispatch(
           setCompassDir(
             position.coords.latitude,
             position.coords.longitude,
-            newCoords[1].latitude,
-            newCoords[1].longitude,
+            coords[1].latitude,
+            coords[1].longitude,
           ),
         );
         mapsRef?.current?.animateCamera({
@@ -287,8 +274,8 @@ const FinalNavigation = () => {
         const distanceToCoords = _onGetDistanceCurrentToNextStep(
           position.coords.latitude,
           position.coords.longitude,
-          newCoords[0].latitude,
-          newCoords[0].longitude,
+          coords[0].latitude,
+          coords[0].longitude,
         );
 
         const nearestLatLong = findNearest(
@@ -318,19 +305,18 @@ const FinalNavigation = () => {
         if (isRadiusCoords || distanceToCoords <= 10) {
           // let newC = [...coords];
           const filterNewC = coords.filter((_, i) => i > findIdx);
-          usePredictionsStore.setState({coords: filterNewC});
-          // setCoords(filterNewC);
+          dispatch(setCoords(filterNewC));
         }
 
         const distanceToCheckPoint = getDistance(position.coords, {
-          latitude: newLegs.steps[0].end_location.lat,
-          longitude: newLegs.steps[0].end_location.lng,
+          latitude: legs.steps[0].end_location.lat,
+          longitude: legs.steps[0].end_location.lng,
         });
 
         setDistanceToCheck(distanceToCheckPoint);
 
         let arrLegsSteps = [];
-        newLegs.steps.map(o => {
+        legs.steps.map(o => {
           let item = {
             latitude: o.end_location.lat,
             longitude: o.end_location.lng,
@@ -353,15 +339,15 @@ const FinalNavigation = () => {
         const isRadiusToCheckpoint = isPointWithinRadius(
           position.coords,
           {
-            latitude: newLegs.steps[findIdxCheck].end_location.lat,
-            longitude: newLegs.steps[findIdxCheck].end_location.lng,
+            latitude: legs.steps[findIdxCheck].end_location.lat,
+            longitude: legs.steps[findIdxCheck].end_location.lng,
           },
           20,
         );
 
         if (isRadiusToCheckpoint || distanceToCheckPoint <= 15) {
           // const newAr = [...stepsArray];
-          const filterSteps = newLegs.steps.filter((_, i) => i > findIdxCheck);
+          const filterSteps = legs.steps.filter((_, i) => i > findIdxCheck);
           dispatch(setSteps(filterSteps));
           setStepsArray(filterSteps);
           if (legs.steps.length !== filterSteps.length) {
@@ -463,19 +449,18 @@ const FinalNavigation = () => {
     const timer90 = setInterval(() => {
       if (play_google_audio.current) {
         play_google_audio.current = false;
-        const newLegs = usePredictionsStore.getState().legs;
         const distanceToCheckPoint = getDistance(
           {
             latitude: currentPos.latitude,
             longitude: currentPos.longitude,
           },
           {
-            latitude: newLegs?.steps[0].end_location.lat,
-            longitude: newLegs?.steps[0].end_location.lng,
+            latitude: legs?.steps[0].end_location.lat,
+            longitude: legs?.steps[0].end_location.lng,
           },
         );
-        Tts.speak('in ' + newLegs?.steps[0]?.duration.text);
-        Tts.speak(newLegs?.steps[0]?.html_instructions.replace(/<[^>]+>/g, ''));
+        Tts.speak('in ' + legs?.steps[0]?.duration.text);
+        Tts.speak(legs?.steps[0]?.html_instructions.replace(/<[^>]+>/g, ''));
         Tts.speak('about ' + distanceToCheckPoint + ' meters');
         play_google_audio.current = true;
       }
@@ -487,17 +472,14 @@ const FinalNavigation = () => {
   // const [countGoogleInstructions, setCountGoogleInstruction] = useState(0);
   useEffect(() => {
     const checkNextPoint = setInterval(async () => {
-      const newLegs = usePredictionsStore.getState().legs;
-
-      const curPos = useCurrentPosStore.getState().current;
       const distanceToCheckPoint = getDistance(
         {
-          latitude: curPos.latitude,
-          longitude: curPos.longitude,
+          latitude: currentPos.latitude,
+          longitude: currentPos.longitude,
         },
         {
-          latitude: newLegs?.steps[0].end_location.lat,
-          longitude: newLegs?.steps[0].end_location.lng,
+          latitude: legs?.steps[0].end_location.lat,
+          longitude: legs?.steps[0].end_location.lng,
         },
       );
       if (distanceToCheckPoint <= 20) {
@@ -603,15 +585,14 @@ const FinalNavigation = () => {
 
   const _googleInstructions = () => {
     crashlytics().log('play google instruction...');
-    const newLegs = usePredictionsStore.getState().legs;
     const distanceToCheckPoint = getDistance(
       {
         latitude: currentPos.latitude,
         longitude: currentPos.longitude,
       },
       {
-        latitude: newLegs?.steps[0].end_location.lat,
-        longitude: newLegs?.steps[0].end_location.lng,
+        latitude: legs?.steps[0].end_location.lat,
+        longitude: legs?.steps[0].end_location.lng,
       },
     );
     Tts.speak('in ' + newLegs?.steps[0]?.duration.text);
@@ -866,24 +847,24 @@ const FinalNavigation = () => {
   };
 
   return (
-    <ErrorBoundary onError={errorHandler}>
-      <SafeAreaView style={globalStyles.displayFlex}>
-        <Pressable style={styles.container}>
-          <Animated
-            style={styles.map}
-            initialRegion={{
-              latitude: route.params.origin.latitude,
-              longitude: route.params.origin.longitude,
-              latitudeDelta: LATITUDE_DELTA,
-              longitudeDelta: LONGITUDE_DELTA,
-            }}
-            showsMyLocationButton
-            showsUserLocation={false}
-            showsCompass={false}
-            zoomControlEnabled={false}
-            provider={PROVIDER_GOOGLE}
-            ref={mapsRef}>
-            {/* <Marker
+    // <ErrorBoundary onError={errorHandler}>
+    <SafeAreaView style={globalStyles.displayFlex}>
+      <Pressable style={styles.container}>
+        <Animated
+          style={styles.map}
+          initialRegion={{
+            latitude: route.params.origin.latitude,
+            longitude: route.params.origin.longitude,
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA,
+          }}
+          showsMyLocationButton
+          showsUserLocation={false}
+          showsCompass={false}
+          zoomControlEnabled={false}
+          provider={PROVIDER_GOOGLE}
+          ref={mapsRef}>
+          {/* <Marker
             key={'aidnw'}
             title={'origin'}
             tracksViewChanges={false}
@@ -913,28 +894,28 @@ const FinalNavigation = () => {
               </Text>
             </View>
           </Marker> */}
-            {coords.length > 0 && (
-              <Polyline
-                coordinates={coords}
-                strokeWidth={6}
-                strokeColor="black"
-                lineCap="round"
-                lineJoin="miter"
-                geodesic={true}
-              />
-            )}
-            {coords.length > 0 && (
-              <Polyline
-                coordinates={coords}
-                strokeWidth={4}
-                strokeColor="red"
-                lineCap="round"
-                lineJoin="miter"
-                geodesic={true}
-              />
-            )}
+          {coords.length > 0 && (
+            <Polyline
+              coordinates={coords}
+              strokeWidth={6}
+              strokeColor="black"
+              lineCap="round"
+              lineJoin="miter"
+              geodesic={true}
+            />
+          )}
+          {coords.length > 0 && (
+            <Polyline
+              coordinates={coords}
+              strokeWidth={4}
+              strokeColor="red"
+              lineCap="round"
+              lineJoin="miter"
+              geodesic={true}
+            />
+          )}
 
-            {/* {coords.length > 0 &&
+          {/* {coords.length > 0 &&
             coords.map((o, i) => (
               <Circle
                 key={i}
@@ -951,31 +932,31 @@ const FinalNavigation = () => {
               />
             ))} */}
 
-            <Marker.Animated
-              ref={animMarkerRef}
-              coordinate={coordAnimMarker}
-              flat={true}
-              // rotation={headDegree}
-              rotation={stateDegree}
-              tracksViewChanges={false}
-              anchor={{x: 0.5, y: 0.5}}
-              title="You're here">
-              <View>
-                <Text>
-                  <MaterialCommunityIcons
-                    name="navigation"
-                    size={50}
-                    color="blue"
-                    style={{
-                      // transform: [{rotate: headDegree + 'deg'}],
-                      transform: [{rotate: stateDegree + 'deg'}],
-                    }}
-                  />
-                </Text>
-              </View>
-            </Marker.Animated>
+          <Marker.Animated
+            ref={animMarkerRef}
+            coordinate={coordAnimMarker}
+            flat={true}
+            // rotation={headDegree}
+            rotation={stateDegree}
+            tracksViewChanges={false}
+            anchor={{x: 0.5, y: 0.5}}
+            title="You're here">
+            <View>
+              <Text>
+                <MaterialCommunityIcons
+                  name="navigation"
+                  size={50}
+                  color="blue"
+                  style={{
+                    // transform: [{rotate: headDegree + 'deg'}],
+                    transform: [{rotate: stateDegree + 'deg'}],
+                  }}
+                />
+              </Text>
+            </View>
+          </Marker.Animated>
 
-            {/* <Marker.Animated
+          {/* <Marker.Animated
             ref={animMarkerDirRef}
             coordinate={coordAnimMarker}
             flat={true}
@@ -1004,26 +985,26 @@ const FinalNavigation = () => {
               <Text style={styles.red}>{compassDir}</Text>
             </View>
           </Marker.Animated> */}
-            {stepsArray.length > 0 &&
-              stepsArray.map((o, i) => (
-                <Marker
-                  key={o.polyline.points}
-                  title={'check point ' + (i + 1)}
-                  description={o.html_instructions}
-                  tracksViewChanges={false}
-                  coordinate={{
-                    latitude: o?.start_location?.lat,
-                    longitude: o?.start_location?.lng,
-                  }}>
-                  <View>
-                    <Text>
-                      <Entypo name="location-pin" color="orange" size={50} />
-                    </Text>
-                  </View>
-                </Marker>
-              ))}
+          {stepsArray.length > 0 &&
+            stepsArray.map((o, i) => (
+              <Marker
+                key={o?.polyline?.points}
+                title={'check point ' + (i + 1)}
+                description={o.html_instructions}
+                tracksViewChanges={false}
+                coordinate={{
+                  latitude: o?.start_location?.lat,
+                  longitude: o?.start_location?.lng,
+                }}>
+                <View>
+                  <Text>
+                    <Entypo name="location-pin" color="orange" size={50} />
+                  </Text>
+                </View>
+              </Marker>
+            ))}
 
-            {/* {legs?.steps.length > 0 && (
+          {/* {legs?.steps.length > 0 && (
             <MapViewDirections
               origin={currentPos}
               destination={route.params.destination}
@@ -1044,61 +1025,63 @@ const FinalNavigation = () => {
               onError={errorMessage => {}}
             />
           )} */}
-          </Animated>
-          <View style={styles.header}>
-            <View style={styles.flexRow}>
-              <View style={styles.w70}>
-                <Ionicons name="arrow-up" size={40} color="black" />
-              </View>
-              <Pressable onPress={_googleInstructions}>
-                <RenderHTML
-                  contentWidth={width}
-                  source={{
-                    html: `<div style="font-size: 1.7rem; color: black">in ${legs.steps[0]?.duration?.text}, ${legs.steps[0]?.html_instructions} about ${distanceToCheck} meters</div>`,
-                    // html: `<div style="font-size: 1.7rem; color: black">in ${legs.steps[0]?.duration?.text}, ${legs.steps[0]?.html_instructions} about ${legs.steps[0]?.distance?.value} meters</div>`,
-                  }}
-                />
-              </Pressable>
+        </Animated>
+        <View style={styles.header}>
+          <View style={styles.flexRow}>
+            <View style={styles.w70}>
+              <Ionicons name="arrow-up" size={40} color="black" />
             </View>
+            <Pressable onPress={_googleInstructions}>
+              <RenderHTML
+                contentWidth={width}
+                source={{
+                  html: `<div style="font-size: 1.7rem; color: black">in ${legs.steps[0]?.duration?.text}, ${legs.steps[0]?.html_instructions} about ${distanceToCheck} meters</div>`,
+                  // html: `<div style="font-size: 1.7rem; color: black">in ${legs.steps[0]?.duration?.text}, ${legs.steps[0]?.html_instructions} about ${legs.steps[0]?.distance?.value} meters</div>`,
+                }}
+              />
+            </Pressable>
           </View>
+        </View>
 
-          <View style={{width: '100%'}}>
-            <View style={styles.content}>
-              <Text style={styles.blue}>
-                {/* User Heading: {_direction(headDegree)} | {headDegree}° */}
-                User Heading: {_direction(stateDegree)} | {stateDegree}°
-              </Text>
-              <Text style={styles.red}>
-                User should Heading to: {_direction(rhumb)}
-              </Text>
-              <Spacer height={10} />
-              <View style={styles.flexRow}>
-                <Button
-                  title="Get Current Loc"
-                  onPress={_getCurrentLoc}
-                  disabled={getCurrentBtn}
-                />
-                <Button
-                  title="Update Direction"
-                  onPress={_updateDirection}
-                  disabled={updateDirectBtn}
-                />
-              </View>
-              <Spacer height={15} />
-              <View style={styles.flexRow}>
-                <Button
-                  title="Audio Cue"
-                  onPress={_onTapAnywhere}
-                  disabled={audioCueBtn}
-                />
-              </View>
+        <View style={{width: '100%'}}>
+          <View style={styles.content}>
+            <Text style={styles.blue}>
+              {/* User Heading: {_direction(headDegree)} | {headDegree}° */}
+              User Heading: {_direction(stateDegree)} | {stateDegree}°
+            </Text>
+            <Text style={styles.red}>
+              User should Heading to: {_direction(rhumb)}
+            </Text>
+            <Spacer height={10} />
+            <View style={styles.flexRow}>
+              <Button
+                title="Get Current Loc"
+                onPress={_getCurrentLoc}
+                disabled={getCurrentBtn}
+              />
+              <Button
+                title="Update Direction"
+                onPress={_updateDirection}
+                disabled={updateDirectBtn}
+              />
+            </View>
+            <Spacer height={15} />
+            <View style={styles.flexRow}>
+              <Button
+                title="Audio Cue"
+                onPress={_onTapAnywhere}
+                disabled={audioCueBtn}
+              />
             </View>
           </View>
-        </Pressable>
-      </SafeAreaView>
-    </ErrorBoundary>
+        </View>
+      </Pressable>
+    </SafeAreaView>
   );
 };
+{
+  /* </ErrorBoundary> */
+}
 
 export default FinalNavigation;
 

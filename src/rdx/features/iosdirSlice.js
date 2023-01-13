@@ -9,7 +9,7 @@ export const iosdirSlice = createSlice({
   initialState,
   reducers: {
     setIosDir: (state, action) => {
-      state.iosdir === action.payload;
+      return {...state, iosdir: action.payload};
     },
   },
 });

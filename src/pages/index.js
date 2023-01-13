@@ -3,8 +3,8 @@ import PermissionsPage from './PermissionsPage';
 import AskPlace from './AskPlace';
 import Destination from './Destination';
 import ConfirmNav from './ConfirmNav';
-// import ArrivalPlace from './ArrivalPlace';
-// import FinalNavigation from './FinalNavigation';
+import ArrivalPlace from './ArrivalPlace';
+import FinalNavigation from './FinalNavigation';
 import ListenPlace from './ListenPlace';
 
 export {
@@ -13,7 +13,7 @@ export {
   AskPlace,
   Destination,
   ConfirmNav,
-  // ArrivalPlace,
-  // FinalNavigation,
+  ArrivalPlace,
+  FinalNavigation,
   ListenPlace,
 };

@@ -12,11 +12,11 @@ export const rhumbSlice = createSlice({
   reducers: {
     setBearing: (state, action) => {
       const result = getRhumbLineBearing(action.payload);
-      state.rhumb === result;
+      return {...state, rhumb: result};
     },
     setCompassDir: (state, action) => {
       const result = getCompassDirection(action.payload);
-      state.compassDir === result;
+      return {...state, compassDir: result};
     },
   },
 });
