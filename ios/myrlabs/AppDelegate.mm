@@ -1,4 +1,5 @@
 #import "AppDelegate.h"
+#import <Firebase.h>
 
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
@@ -35,6 +36,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 {
   [GMSServices provideAPIKey:@"AIzaSyCtp6CQLrRys1OcvXjZCdGGqZWa_LjjDTA"]; // add this line using the api key obtained from Google Console
   RCTAppSetupPrepareApp(application);
+  [FIRApp configure];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
 
