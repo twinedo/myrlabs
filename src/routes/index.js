@@ -45,7 +45,6 @@ const Routes = () => {
         component={FinalNavigation}
         options={{
           headerShown: false,
-          animation: 'none',
         }}
       />
       <Screen

@@ -58,9 +58,13 @@ const FinalNavigation = () => {
 
   const coords = useSelector(state => state.prediction.coords);
   const legs = useSelector(state => state.prediction.legs);
-  const currentPos = useSelector(state => state.currentPos.currentPos);
+  const currentPos = useSelector(state => state.currentPos);
   const iosdir = useSelector(state => state.iosdir.iosdir);
   const rhumb = useSelector(state => state.rhumb.rhumb);
+
+  // console.log('legs.s', legs);
+  // console.log('coords.s', coords);
+  // console.log('currentPosste', currentPos);
 
   const [stateDegree, setStateDegree] = useState(0);
 
@@ -98,6 +102,74 @@ const FinalNavigation = () => {
   }, []);
 
   let play_directional_audio_flag = useRef(false);
+
+  useEffect(() => {
+    console.log('testt');
+    Geolocation.getCurrentPosition(
+      async position => {
+        dispatch(
+          setCurrentPos({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          }),
+        );
+        dispatch(
+          setBearing(
+            position.coords.latitude,
+            position.coords.longitude,
+            coords[1].latitude,
+            coords[1].longitude,
+          ),
+        );
+        dispatch(
+          setCompassDir(
+            position.coords.latitude,
+            position.coords.longitude,
+            coords[1].latitude,
+            coords[1].longitude,
+          ),
+        );
+        mapsRef?.current?.animateCamera(
+          {
+            center: {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            },
+            zoom: 21,
+            // heading: position.coords.heading - cam.heading,
+            heading: rhumb,
+          },
+          5000,
+        );
+
+        const newCoordinate = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          latitudeDelta: 0.012,
+          longitudeDelta: 0.012,
+        };
+        coordAnimMarker.timing(newCoordinate).start();
+        setCoordAnimMarker(new AnimatedRegion(newCoordinate));
+        if (Platform.OS === 'android') {
+          // if (animMarkerDirRef.current) {
+          animMarkerDirRef.current.animateMarkerToCoordinate(
+            newCoordinate,
+            8000,
+          ); //  number of duration between points
+          // if (animMarkerRef.current) {
+          animMarkerRef.current.animateMarkerToCoordinate(newCoordinate, 8000); //  number of duration between points
+          // }
+        } else {
+          coordAnimMarker.timing(newCoordinate).start();
+        }
+      },
+      error => {
+        console.log(error.code, error.message);
+        Permissions();
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  }, []);
 
   // Compass Heading function
   useEffect(() => {
@@ -301,6 +373,13 @@ const FinalNavigation = () => {
           },
           20,
         );
+        const distanceToCheckPoint = getDistance(position.coords, {
+          latitude: legs.steps[0].end_location.lat,
+          longitude: legs.steps[0].end_location.lng,
+        });
+        console.log('distanceToCheckPoint', distanceToCheckPoint);
+
+        setDistanceToCheck(distanceToCheckPoint);
 
         if (isRadiusCoords || distanceToCoords <= 10) {
           // let newC = [...coords];
@@ -308,15 +387,8 @@ const FinalNavigation = () => {
           dispatch(setCoords(filterNewC));
         }
 
-        const distanceToCheckPoint = getDistance(position.coords, {
-          latitude: legs.steps[0].end_location.lat,
-          longitude: legs.steps[0].end_location.lng,
-        });
-
-        setDistanceToCheck(distanceToCheckPoint);
-
         let arrLegsSteps = [];
-        legs.steps.map(o => {
+        legs?.steps.map(o => {
           let item = {
             latitude: o.end_location.lat,
             longitude: o.end_location.lng,
@@ -353,7 +425,6 @@ const FinalNavigation = () => {
           if (legs.steps.length !== filterSteps.length) {
             play_nearby.current = true;
           }
-          // setLegs(newLegs);
         }
 
         if (!isRadiusCoords && distanceToCoords > 200) {
@@ -461,7 +532,7 @@ const FinalNavigation = () => {
         );
         Tts.speak('in ' + legs?.steps[0]?.duration.text);
         Tts.speak(legs?.steps[0]?.html_instructions.replace(/<[^>]+>/g, ''));
-        Tts.speak('about ' + distanceToCheckPoint + ' meters');
+        Tts.speak('about ' + legs?.steps[0]?.distance?.text);
         play_google_audio.current = true;
       }
     }, 90000);
@@ -486,9 +557,7 @@ const FinalNavigation = () => {
         if (play_nearby.current) {
           // _googleInstructions();
           Tts.speak('about ' + distanceToCheckPoint + ' meters');
-          Tts.speak(
-            newLegs?.steps[0]?.html_instructions.replace(/<[^>]+>/g, ''),
-          );
+          Tts.speak(legs?.steps[0]?.html_instructions.replace(/<[^>]+>/g, ''));
           play_nearby.current = false;
         }
       }
@@ -595,8 +664,8 @@ const FinalNavigation = () => {
         longitude: legs?.steps[0].end_location.lng,
       },
     );
-    Tts.speak('in ' + newLegs?.steps[0]?.duration.text);
-    Tts.speak(newLegs?.steps[0]?.html_instructions.replace(/<[^>]+>/g, ''));
+    Tts.speak('in ' + legs?.steps[0]?.duration.text);
+    Tts.speak(legs?.steps[0]?.html_instructions.replace(/<[^>]+>/g, ''));
     Tts.speak('about ' + distanceToCheckPoint + ' meters');
   };
 
@@ -1003,28 +1072,6 @@ const FinalNavigation = () => {
                 </View>
               </Marker>
             ))}
-
-          {/* {legs?.steps.length > 0 && (
-            <MapViewDirections
-              origin={currentPos}
-              destination={route.params.destination}
-              apikey={MAPS_KEY}
-              strokeWidth={4}
-              strokeColor="blue"
-              optimizeWaypoints={true}
-              mode="WALKING"
-              onStart={params => {
-                console.log(
-                  `Started routing between "${route.params.origin}" and "${route.params.destination}"`,
-                );
-              }}
-              onReady={result => {
-                console.log(`Distance: ${result.distance} km`);
-                console.log(`Duration: ${result.duration} min.`);
-              }}
-              onError={errorMessage => {}}
-            />
-          )} */}
         </Animated>
         <View style={styles.header}>
           <View style={styles.flexRow}>
@@ -1035,8 +1082,8 @@ const FinalNavigation = () => {
               <RenderHTML
                 contentWidth={width}
                 source={{
-                  html: `<div style="font-size: 1.7rem; color: black">in ${legs.steps[0]?.duration?.text}, ${legs.steps[0]?.html_instructions} about ${distanceToCheck} meters</div>`,
-                  // html: `<div style="font-size: 1.7rem; color: black">in ${legs.steps[0]?.duration?.text}, ${legs.steps[0]?.html_instructions} about ${legs.steps[0]?.distance?.value} meters</div>`,
+                  // html: `<div style="font-size: 1.7rem; color: black">in ${legs.steps[0]?.duration?.text}, ${legs.steps[0]?.html_instructions} about ${distanceToCheck} meters</div>`,
+                  html: `<div style="font-size: 1.7rem; color: black">in ${legs.steps[0]?.duration?.text}, ${legs.steps[0]?.html_instructions} about ${legs.steps[0]?.distance?.value} meters</div>`,
                 }}
               />
             </Pressable>

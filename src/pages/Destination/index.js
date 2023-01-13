@@ -215,7 +215,7 @@ const Destination = () => {
   const RenderItem = ({item, index}) => (
     <Pressable
       style={{width: width - 32}}
-      onPress={() => onPressAddress(item, index)}
+      // onPress={() => onPressAddress(item, index)}
       onLongPress={() => _onLongPressItem(item)}>
       <Text
         // onPress={() => onSelectFrom(item.description)}

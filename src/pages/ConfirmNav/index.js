@@ -31,7 +31,7 @@ const ConfirmNav = () => {
   const navigation = useNavigation();
   const {data} = route.params;
   const coords = useSelector(state => state.prediction.coords);
-  console.log('coords', coords);
+  console.log('coordsaaa', coords);
   const iosdir = useSelector(state => state.iosdir.iosdir);
 
   const getDirection = async (a, b) => {
