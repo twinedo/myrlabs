@@ -1,5 +1,6 @@
 #import "AppDelegate.h"
 #import <Firebase.h>
+#import <GoogleMaps/GoogleMaps.h>
 
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
@@ -16,7 +17,6 @@
 #import <ReactCommon/RCTTurboModuleManager.h>
 
 #import <react/config/ReactNativeConfig.h>
-#import <GoogleMaps/GoogleMaps.h>
 
 static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
@@ -34,11 +34,11 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [GMSServices provideAPIKey:@"AIzaSyCtp6CQLrRys1OcvXjZCdGGqZWa_LjjDTA"]; // add this line using the api key obtained from Google Console
   RCTAppSetupPrepareApp(application);
   [FIRApp configure];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  [GMSServices provideAPIKey:@"AIzaSyCtp6CQLrRys1OcvXjZCdGGqZWa_LjjDTA"]; // add this line using the api key obtained from Google Console
 
 #if RCT_NEW_ARCH_ENABLED
   _contextContainer = std::make_shared<facebook::react::ContextContainer const>();

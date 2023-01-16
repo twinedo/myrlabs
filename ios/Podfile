@@ -9,11 +9,11 @@ $RNFirebaseAsStaticFramework = true
 target 'myrlabs' do
   $static_framework = []
   use_frameworks! :linkage => :static
-  config = use_native_modules!
-
+  
   permissions_path = '../node_modules/react-native-permissions/ios'
   rn_maps_path = '../node_modules/react-native-maps'
-
+  
+  config = use_native_modules!
   $static_framework += [
     'react-native-maps',
     'react-native-google-maps',
@@ -23,7 +23,7 @@ target 'myrlabs' do
     'Permission-LocationWhenInUse',
     'Permission-Notifications',
   ]
-
+  
   pod 'Permission-LocationAccuracy', :path => "#{permissions_path}/LocationAccuracy"
   pod 'Permission-LocationAlways', :path => "#{permissions_path}/LocationAlways"
   pod 'Permission-LocationWhenInUse', :path => "#{permissions_path}/LocationWhenInUse"
@@ -42,7 +42,7 @@ target 'myrlabs' do
   pod 'Firebase', :modular_headers => true
   pod 'FirebaseCoreInternal', :modular_headers => true
   pod 'GoogleUtilities', :modular_headers => true
-
+  
   # Flags change depending on the env values.
   flags = get_default_flags()
 
@@ -57,10 +57,11 @@ target 'myrlabs' do
     #
     # Note that if you have use_frameworks! enabled, Flipper will not work and
     # you should disable the next line.
-    :flipper_configuration => FlipperConfiguration.enabled,
+    # :flipper_configuration => FlipperConfiguration.enabled,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+end
 
   target 'myrlabsTests' do
     inherit! :complete
@@ -73,6 +74,18 @@ target 'myrlabs' do
   # you should disable the next line.
   # use_flipper!()
 
+  # ****** THIS IS THE MAGIC ******
+pre_install do |installer|
+    Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
+        installer.pod_targets.each do |pod|
+            if $static_framework.include?(pod.name)
+                def pod.build_type;
+                Pod::BuildType.static_library # >= 1.9
+            end
+        end
+    end
+end
+
   post_install do |installer|
     react_native_post_install(
       installer,
@@ -80,6 +93,15 @@ target 'myrlabs' do
       # necessary for Mac Catalyst builds
       :mac_catalyst_enabled => false
     )
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
+    installer.pods_project.targets.each do |target|
+    if target.name == 'RCT-Folly'
+      target.build_configurations.each do |config|
+        config.build_settings['HEADER_SEARCH_PATHS'] = "$(inherited) ${PODS_ROOT}/fmt/include"
+      end
+    end
+  end
+    # __apply_Xcode_12_5_M1_post_install_workaround(installer)
+    installer.pods_project.build_configurations.each do |config|
+    config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
   end
 end
